@@ -42,6 +42,7 @@ NSString *const FBErrorLoginFailedReasonInlineNotCancelledValue = @"com.facebook
 
 // const strings
 static NSString *const FBPLISTAppIDKey = @"FacebookAppID";
+static NSString *const FBPLISTAppURLSuffixKey = @"FacebookAppURLSchemeSuffix";
 // for unit testing mode only (DO NOT store application secrets in a published application plist)
 static NSString *const FBPLISTAppSecretKey = @"FacebookAppSecret";
 static NSString *const FBAuthURLScheme = @"fbauth";
@@ -76,6 +77,7 @@ static int const FBTokenRetryExtendSeconds = 60 * 60;           // hour
 
 // module scoped globals
 static NSString *g_defaultAppID = nil;
+static NSString *g_defaultUrlSchemeSuffix = nil;
 static FBSession *g_activeSession = nil;
 
 @interface FBSession () <FBLoginDialogDelegate> {
@@ -223,6 +225,9 @@ static FBSession *g_activeSession = nil;
         // setup values where nil implies a default
         if (!appID) {
             appID = [FBSession defaultAppID];    
+        }
+        if (!urlSchemeSuffix) {
+            urlSchemeSuffix = [FBSession defaultUrlSchemeSuffix];
         }
         if (!permissions) {
             permissions = [NSArray array];
@@ -607,6 +612,20 @@ static FBSession *g_activeSession = nil;
         g_defaultAppID = [bundle objectForInfoDictionaryKey:FBPLISTAppIDKey];
     }
     return g_defaultAppID;
+}
+
++ (NSString*)defaultUrlSchemeSuffix {
+    if (!g_defaultUrlSchemeSuffix) {
+        NSBundle* bundle = [NSBundle mainBundle];
+        g_defaultUrlSchemeSuffix = [bundle objectForInfoDictionaryKey:FBPLISTAppURLSuffixKey];
+    }
+    return g_defaultUrlSchemeSuffix;
+}
+
++ (void)setDefaultUrlSchemeSuffix:(NSString *)schemeSuffix {
+    NSString *oldValue = g_defaultUrlSchemeSuffix;
+    g_defaultUrlSchemeSuffix = [schemeSuffix copy];
+    [oldValue release];
 }
 
 //calls ios6 renewCredentialsForAccount in order to update ios6's worldview of authorization state.
